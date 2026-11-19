@@ -39,6 +39,12 @@ description: 通过 SSH 连接用户指定的服务器，选择直接交互终�
 2. 在目标 tmux 服务器上检查指定名称（包括用户给出的 `attach-session -t` 目标）。同名会话存在就直接复用，确认不存在就用该名称在后台新建，无需再询问。若用户明确只接入已有会话，查不到时报告结果。SSH 或 tmux 检查失败时先诊断。
 3. 未指定名称时，优先复用当前聊天已记录且仍存在的会话；没有已知可复用的会话就自动生成名称并在后台新建，生成的名称撞名时换一个。新会话初始尺寸可为 140×40，连接后由客户端调整。记录服务器、SSH 用户/端口、会话名及 pane ID，供后续操作和重连使用。
 4. 为该会话窗口设置 `window-style` 和 `window-active-style` 为 `fg=#ffffff,bg=#000000`，会话 `status-style` 同样设置黑底白字。只设置目标窗口/会话，不用 `-g`，不改其他会话或永久配置。在 Codex 右侧终端创建或重连共享会话时，默认执行 `tmux set-option -t <会话> mouse off`，由终端处理文本选择和剪贴板。用户明确希望用滚轮查看 tmux 历史时，可为该会话设为 `mouse on`。用 `tmux show-options -v -t <会话> mouse` 核对所选设置。
+
+   创建或重连时，为目标会话配置 `Alt+↑` 和 `Alt+↓` 翻阅 tmux 历史。
+
+   - 把现有普通按键复制到专用键表，通过会话的 `key-table` 选项使用该表。绑定 `M-Up`，在命令行用 `copy-mode -u` 进入历史并上翻一页，在复制模式用 `send-keys -X page-up` 继续上翻。绑定 `M-Down`，在复制模式用 `send-keys -X page-down` 下翻一页。
+   - 复制模式的键表优先匹配。若 `copy-mode` 或 `copy-mode-vi` 已绑定这两个键，在相关绑定中用会话条件只给启用了该快捷键的会话整页翻动，其他会话执行原来的动作。可用会话级 tmux 用户选项标记已启用的会话。重连时复用已有键表和条件，用 `tmux list-keys -T <键表>` 核对实际绑定。升级已有会话时，移除技能此前在该会话专用键表中添加的 `M-[` 和 `M-]`。
+
 5. 在目标 shell 提示符空闲时，source [scripts/high-contrast.bash](scripts/high-contrast.bash) 的内容。该脚本针对 Bash；若不是 Bash，不强塞 Bash 的 PS1，保留 shell 并适配其提示符。内容可以通过 SSH 标准输入、独立命名的 tmux buffer 传入；PowerShell 传输时去除 CR。使用命名 buffer，完成后删除该 buffer，不覆盖用户剪贴板或全局默认 buffer。
 6. 在右侧连接同一会话。仅别名、默认用户和端口时命令如：
 
@@ -67,7 +73,7 @@ description: 通过 SSH 连接用户指定的服务器，选择直接交互终�
 
 颜色调整后在当前目录运行一次 `ls --color=always`；用 `capture-pane -e` 检查 RGB 颜色，区分“设置及转义码已验证”和“屏幕视觉效果已确认”。旧输出不会因 LS_COLORS 更改而重新着色。 光标调整后，用 `read_thread_terminal` 核对 `OSC 12` 和 `CSI 2 SP q` 是否到达右侧终端。视觉效果以终端获得焦点后的显示为准。
 
-交接时简短报告实际服务器、模式、会话名、已完成事项和还需用户执行的接入命令。在右侧终端双击文件名选中，按 `Ctrl+C` 复制、`Ctrl+V` 粘贴。双击只选中部分文件名时，拖选全名。查看 tmux 保留的历史时，按 `Ctrl+B` 再按 `[` 进入复制模式，用方向键或 `Page Up` / `Page Down` 翻阅，按 `q` 返回。开启 tmux 鼠标后也可用滚轮翻阅。可附退出视图的方法：tmux 中先按 Ctrl+B 再按 D 可分离，保留远端会话；不要用 `exit` 或 `kill-session` 代替分离。
+交接时简短报告实际服务器、模式、会话名、已完成事项和还需用户执行的接入命令。在右侧终端双击文件名选中，按 `Ctrl+C` 复制、`Ctrl+V` 粘贴。双击只选中部分文件名时，拖选全名。按 `Alt+↑` 进入 tmux 历史并上翻一页，按 `Alt+↓` 下翻一页，按 `q` 返回。也可以按 `Ctrl+B` 再按 `[`，用 `Page Up` 或 `Page Down` 翻页。开启 tmux 鼠标后也可用滚轮翻阅。可附退出视图的方法：tmux 中先按 Ctrl+B 再按 D 可分离，保留远端会话；不要用 `exit` 或 `kill-session` 代替分离。
 
 示例请求：
 
