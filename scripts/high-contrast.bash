@@ -4,3 +4,8 @@ export LS_COLORS="${LS_COLORS:+$LS_COLORS:}no=38;2;255;255;255:fi=38;2;255;255;2
 if [ -n "${BASH_VERSION-}" ]; then
     export PS1='\[\e[1;38;2;0;255;100m\]\u@\h\[\e[0;38;2;255;255;255m\]:\[\e[1;38;2;80;180;255m\]\w\[\e[0;38;2;255;255;255m\]\$ \[\e[0m\]'
 fi
+
+# Use a bright, steady block cursor when stdout is a terminal.
+if [ -t 1 ]; then
+    printf '\033]12;#ffffff\a\033[2 q'
+fi
